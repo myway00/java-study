@@ -40,7 +40,7 @@ public class ChatServerThread extends Thread {
                 String line = bufferedReader.readLine();
                 if (line == null) {
                     // 클라이언트가 종료한 경우 처리
-                    doQuit(currentUsers);
+                    doQuit(printWriter);
                     ChatServer.consoleLog("Closed by client");
                     break;
                 }
@@ -105,7 +105,7 @@ public class ChatServerThread extends Thread {
         // 입장 메시지 브로드캐스팅
         broadcastMessage(entryMessage); 
         addUser(currentUsers); 
-        printWriter.println("JOIN:OK");
+        currentUsers.println("JOIN:OK");
     }
 
     private void addUser(PrintWriter user) {
