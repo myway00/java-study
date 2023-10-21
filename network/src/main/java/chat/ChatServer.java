@@ -29,38 +29,38 @@ public class ChatServer {
     }
 
     private void runServer() {
-        // ±âÁ¸ÀÇ ArrayList¸¦ µ¿±âÈ­µÈ ¸®½ºÆ®·Î º¯È¯
-        //  currentUsers ¸®½ºÆ®¿¡ ´ëÇÑ Á¢±ÙÀº ³»ºÎÀûÀ¸·Î µ¿±âÈ­µÇ¾î ¿©·¯ ¾²·¹µå°¡ ¾ÈÀüÇÏ°Ô »ç¿ë
-    	List<PrintWriter> currentUsers = new ArrayList<PrintWriter>();
+        // ê¸°ì¡´ì˜ ArrayListë¥¼ ë™ê¸°í™”ëœ ë¦¬ìŠ¤íŠ¸ë¡œ ë³€í™˜
+        //  currentUsers ë¦¬ìŠ¤íŠ¸ì— ëŒ€í•œ ì ‘ê·¼ì€ ë‚´ë¶€ì ìœ¼ë¡œ ë™ê¸°í™”ë˜ì–´ ì—¬ëŸ¬ ì“°ë ˆë“œê°€ ì•ˆì „í•˜ê²Œ ì‚¬ìš©
+    	List<PrintWriter> currentUsers = List<PrintWriter> currentUsers = Collections.synchronizedList(new ArrayList<>());
 
         try {
-            // 1. ¼­¹ö ¼ÒÄÏ »ý¼º 
+            // 1. ì„œë²„ ì†Œì¼“ ìƒì„± 
             serverSocket = new ServerSocket();
 
-            // 1-1. SO_REUSEADDR ¼ÒÄÏÀÌ »ç¿ëÇÏ´Â Æ÷Æ®¸¦ ´õ »¡¸® Àç»ç¿ëÇÏµµ·Ï Çã¿ëÇÏ´Â ¿ªÇÒ
+            // 1-1. SO_REUSEADDR ì†Œì¼“ì´ ì‚¬ìš©í•˜ëŠ” í¬íŠ¸ë¥¼ ë” ë¹¨ë¦¬ ìž¬ì‚¬ìš©í•˜ë„ë¡ í—ˆìš©í•˜ëŠ” ì—­í• 
             serverSocket.setReuseAddress(true);
 
-            // 2. binding - ¹é·Î±×(backlog) Å¥ÀÇ Å©±â
+            // 2. binding - ë°±ë¡œê·¸(backlog) íì˜ í¬ê¸°
             String localhost = InetAddress.getLocalHost().getHostAddress();
             serverSocket.bind(new InetSocketAddress("0.0.0.0", PORT), ALLOWED_CONNECTION_SIZE);
             consoleLog("ChatServer Starts at " + PORT);
 
             while (true) { 
-                // ¼­¹ö°¡ °è¼ÓÇØ¼­ Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°áÀ» ¹Þ¾ÆµéÀÌ±â À§ÇÑ ¹«ÇÑ ·çÇÁÀÔ´Ï´Ù.
-                // ÀÌ ·çÇÁ´Â ¼­¹ö°¡ ½ÇÇà ÁßÀÏ µ¿¾È °è¼ÓÇØ¼­ Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°áÀ» Ã³¸®ÇÕ´Ï´Ù.
+                // ì„œë²„ê°€ ê³„ì†í•´ì„œ í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²°ì„ ë°›ì•„ë“¤ì´ê¸° ìœ„í•œ ë¬´í•œ ë£¨í”„ìž…ë‹ˆë‹¤.
+                // ì´ ë£¨í”„ëŠ” ì„œë²„ê°€ ì‹¤í–‰ ì¤‘ì¼ ë™ì•ˆ ê³„ì†í•´ì„œ í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²°ì„ ì²˜ë¦¬í•©ë‹ˆë‹¤.
                 
                 Socket socket = serverSocket.accept();
-                // »õ·Î¿î Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°áÀ» ¼ö¶ôÇÏ°í ÇØ´ç Å¬¶óÀÌ¾ðÆ®¿Í Åë½ÅÇÏ±â À§ÇÑ ¼ÒÄÏÀ» »ý¼ºÇÕ´Ï´Ù.
-                // accept() ¸Þ¼­µå´Â Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°áÀÌ ¿Ã ¶§±îÁö ºí·ÎÅ·µË´Ï´Ù.
+                // ìƒˆë¡œìš´ í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²°ì„ ìˆ˜ë½í•˜ê³  í•´ë‹¹ í´ë¼ì´ì–¸íŠ¸ì™€ í†µì‹ í•˜ê¸° ìœ„í•œ ì†Œì¼“ì„ ìƒì„±í•©ë‹ˆë‹¤.
+                // accept() ë©”ì„œë“œëŠ” í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²°ì´ ì˜¬ ë•Œê¹Œì§€ ë¸”ë¡œí‚¹ë©ë‹ˆë‹¤.
                 
                 Thread thread = new ChatServerThread(socket, currentUsers);
-                // »õ·Î¿î Å¬¶óÀÌ¾ðÆ®¿Í Åë½ÅÇÏ±â À§ÇÑ ¾²·¹µå¸¦ »ý¼ºÇÕ´Ï´Ù.
-                // ChatServerThread Å¬·¡½º´Â Å¬¶óÀÌ¾ðÆ®¿ÍÀÇ ½ÇÁ¦ Åë½ÅÀ» Ã³¸®ÇÏ´Â ·ÎÁ÷ÀÌ ´ã°ÜÀÖ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-                // ÇØ´ç Å¬·¡½º´Â »ý¼ºÀÚ¿¡ ¼ÒÄÏ°ú ÇöÀç »ç¿ëÀÚ ¸ñ·ÏÀ» Àü´Þ¹Þ¾Æ ÃÊ±âÈ­µË´Ï´Ù.
+                // ìƒˆë¡œìš´ í´ë¼ì´ì–¸íŠ¸ì™€ í†µì‹ í•˜ê¸° ìœ„í•œ ì“°ë ˆë“œë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+                // ChatServerThread í´ëž˜ìŠ¤ëŠ” í´ë¼ì´ì–¸íŠ¸ì™€ì˜ ì‹¤ì œ í†µì‹ ì„ ì²˜ë¦¬í•˜ëŠ” ë¡œì§ì´ ë‹´ê²¨ìžˆëŠ” í´ëž˜ìŠ¤ìž…ë‹ˆë‹¤.
+                // í•´ë‹¹ í´ëž˜ìŠ¤ëŠ” ìƒì„±ìžì— ì†Œì¼“ê³¼ í˜„ìž¬ ì‚¬ìš©ìž ëª©ë¡ì„ ì „ë‹¬ë°›ì•„ ì´ˆê¸°í™”ë©ë‹ˆë‹¤.
                 
                 thread.start();
-                // ¾²·¹µå¸¦ ½ÃÀÛÇÏ°í, ChatServerThread ³»ÀÇ run() ¸Þ¼­µå°¡ ½ÇÇàµÇ°Ô ÇÕ´Ï´Ù.
-                // ÀÌ·¸°Ô ÇÔÀ¸·Î½á ¼­¹ö´Â ¿©·¯ Å¬¶óÀÌ¾ðÆ®µé°ú µ¿½Ã¿¡ º´·ÄÀûÀ¸·Î Åë½ÅÇÒ ¼ö ÀÖ½À´Ï´Ù.
+                // ì“°ë ˆë“œë¥¼ ì‹œìž‘í•˜ê³ , ChatServerThread ë‚´ì˜ run() ë©”ì„œë“œê°€ ì‹¤í–‰ë˜ê²Œ í•©ë‹ˆë‹¤.
+                // ì´ë ‡ê²Œ í•¨ìœ¼ë¡œì¨ ì„œë²„ëŠ” ì—¬ëŸ¬ í´ë¼ì´ì–¸íŠ¸ë“¤ê³¼ ë™ì‹œì— ë³‘ë ¬ì ìœ¼ë¡œ í†µì‹ í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
             }
 
         } catch (IOException e) {
@@ -72,14 +72,14 @@ public class ChatServer {
 
     private void closeServerSocket() {
         try {
-            // ¼­¹ö ¼ÒÄÏÀÌ nullÀÌ ¾Æ´Ï°í ÀÌ¹Ì ´ÝÇôÀÖÁö ¾ÊÀº °æ¿ì¿¡¸¸ ¾Æ·¡ ÄÚµå¸¦ ½ÇÇàÇÕ´Ï´Ù.
+            // ì„œë²„ ì†Œì¼“ì´ nullì´ ì•„ë‹ˆê³  ì´ë¯¸ ë‹«í˜€ìžˆì§€ ì•Šì€ ê²½ìš°ì—ë§Œ ì•„ëž˜ ì½”ë“œë¥¼ ì‹¤í–‰í•©ë‹ˆë‹¤.
             if (serverSocket != null && !serverSocket.isClosed()) {
-                // ¼­¹ö ¼ÒÄÏÀ» ´Ý½À´Ï´Ù. Å¬¶óÀÌ¾ðÆ®ÀÇ ¿¬°á ¼ö¶ôÀ» Áß´ÜÇÏ°í ¸®¼Ò½º¸¦ ÇØÁ¦ÇÕ´Ï´Ù.
+                // ì„œë²„ ì†Œì¼“ì„ ë‹«ìŠµë‹ˆë‹¤. í´ë¼ì´ì–¸íŠ¸ì˜ ì—°ê²° ìˆ˜ë½ì„ ì¤‘ë‹¨í•˜ê³  ë¦¬ì†ŒìŠ¤ë¥¼ í•´ì œí•©ë‹ˆë‹¤.
                 serverSocket.close();
             }
         } catch (IOException ex) {
-            // ¼­¹ö ¼ÒÄÏÀ» ´Ý´Â °úÁ¤¿¡¼­ ¹ß»ýÇÑ ¿¹¿Ü¸¦ Ã³¸®ÇÕ´Ï´Ù.
-            // ¿¹¿Ü ³»¿ëÀ» Ãâ·ÂÇÏ¿© ·Î±×¿¡ ±â·ÏÇÕ´Ï´Ù.
+            // ì„œë²„ ì†Œì¼“ì„ ë‹«ëŠ” ê³¼ì •ì—ì„œ ë°œìƒí•œ ì˜ˆì™¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+            // ì˜ˆì™¸ ë‚´ìš©ì„ ì¶œë ¥í•˜ì—¬ ë¡œê·¸ì— ê¸°ë¡í•©ë‹ˆë‹¤.
             consoleLog("error:" + ex);
         }
     }
